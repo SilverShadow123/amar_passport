@@ -1,54 +1,110 @@
-# AmarPassport Crew
+# AmarPassport — Bangladesh E-Passport Readiness Assistant
 
-Welcome to the AmarPassport Crew project, powered by [crewAI](https://crewai.com). This template is designed to help you set up a multi-agent AI system with ease, leveraging the powerful and flexible framework provided by crewAI. Our goal is to enable your agents to collaborate effectively on complex tasks, maximizing their collective intelligence and capabilities.
+A multi-agent AI system built with [CrewAI](https://crewai.com) that helps Bangladeshi citizens prepare their e-passport application. Given an applicant's profile, it analyzes eligibility, calculates fees, generates a document checklist, and produces a comprehensive readiness report in both English and Bangla.
 
-## Installation
+## Agents
 
-Ensure you have Python >=3.10 <3.14 installed on your system. This project uses [UV](https://docs.astral.sh/uv/) for dependency management and package handling, offering a seamless setup and execution experience.
+| Agent | Role |
+|---|---|
+| **Police Guardian** | Bangladesh Passport Policy Expert — determines passport validity (5 vs 10 years) and required ID (NID vs Birth Registration) based on age |
+| **Chancellor of the Exchequer** | Financial Auditor — calculates exact BDT fee including 15% VAT based on page count and delivery speed |
+| **Document Architect** | Documentation Officer — generates a customized document checklist based on age, profession, and circumstances |
+| **Passport Readiness Officer** | Virtual Consular Officer — synthesizes all outputs into a final Markdown report in English and Bangla |
 
-First, if you haven't already, install uv:
+## How It Works
+
+```
+User Profile → [Policy Guardian] → [Fee Auditor] → [Document Architect] → [Readiness Officer] → Report
+```
+
+1. You provide applicant details (age, profession, urgency, page count, location, NID status)
+2. Agents collaborate sequentially, each with access to a knowledge base of 2026 fee tables and document rules
+3. A final `report.md` is generated with eligibility, fees, required documents, and policy flags
+
+## Requirements
+
+- Python >=3.10, <3.14
+- [UV](https://docs.astral.sh/uv/) package manager
+- An [OpenRouter](https://openrouter.ai) API key (or any LLM supported by CrewAI)
+- A [Serper](https://serper.dev) API key for web search
+
+## Setup
 
 ```bash
+# Install uv if needed
 pip install uv
+
+# Clone and enter the project
+cd amar_passport
+
+# Install dependencies
+uv sync
+
+# Configure environment variables
+cp .env.example .env
 ```
 
-Next, navigate to your project directory and install the dependencies:
+Edit `.env` and add your keys:
 
-(Optional) Lock the dependencies and install them by using the CLI command:
+```
+OPENROUTER_API_KEY=sk-or-v1-...
+SERPER_API_KEY=...
+```
+
+## Run
+
 ```bash
-crewai install
+# From the project root
+uv run --active python src/amar_passport/main.py
 ```
-### Customizing
 
-**Add your `OPENAI_API_KEY` into the `.env` file**
-
-- Modify `src/amar_passport/config/agents.yaml` to define your agents
-- Modify `src/amar_passport/config/tasks.yaml` to define your tasks
-- Modify `src/amar_passport/crew.py` to add your own logic, tools and specific args
-- Modify `src/amar_passport/main.py` to add custom inputs for your agents and tasks
-
-## Running the Project
-
-To kickstart your crew of AI agents and begin task execution, run this from the root folder of your project:
+Or use the CrewAI CLI:
 
 ```bash
-$ crewai run
+crewai run
 ```
 
-This command initializes the amar_passport Crew, assembling the agents and assigning them tasks as defined in your configuration.
+The output will be written to `report.md`.
 
-This example, unmodified, will run the create a `report.md` file with the output of a research on LLMs in the root folder.
+## Customize
 
-## Understanding Your Crew
+Edit the applicant profile in `src/amar_passport/main.py:run()`:
 
-The amar_passport Crew is composed of multiple AI agents, each with unique roles, goals, and tools. These agents collaborate on a series of tasks, defined in `config/tasks.yaml`, leveraging their collective skills to achieve complex objectives. The `config/agents.yaml` file outlines the capabilities and configurations of each agent in your crew.
+```python
+inputs = {
+    'age': '24',
+    'profession': 'private sector employee',
+    'urgency': 'Express',
+    'pages': '64',
+    'location': 'Dhaka',
+    'has_nid': 'Yes'
+}
+```
 
-## Support
+## Project Structure
 
-For support, questions, or feedback regarding the AmarPassport Crew or crewAI.
-- Visit our [documentation](https://docs.crewai.com)
-- Reach out to us through our [GitHub repository](https://github.com/joaomdmoura/crewai)
-- [Join our Discord](https://discord.com/invite/X4JWnZnxPb)
-- [Chat with our docs](https://chatg.pt/DWjSBZn)
+```
+amar_passport/
+├── knowledge/
+│   ├── passport_db.json      # Fee table & document rules (JSON knowledge source)
+│   └── user_preference.txt   # Sample user context
+├── src/amar_passport/
+│   ├── config/
+│   │   ├── agents.yaml       # Agent role/goal/backstory definitions
+│   │   └── tasks.yaml        # Task descriptions & agent assignments
+│   ├── tools/
+│   │   └── custom_tool.py    # Custom tool implementations
+│   ├── crew.py               # Crew orchestration class
+│   └── main.py               # Entry point with applicant inputs
+├── .env                      # API keys
+├── pyproject.toml
+└── README.md
+```
 
-Let's create wonders together with the power and simplicity of crewAI.
+## Tech Stack
+
+- **CrewAI** — Multi-agent orchestration
+- **OpenRouter (gpt-4o-mini)** — LLM inference
+- **SerperDevTool** — Web search capability
+- **sentence-transformers** — Local embeddings for knowledge retrieval (no OpenAI key required)
+- **ChromaDB** — Vector storage for knowledge source
