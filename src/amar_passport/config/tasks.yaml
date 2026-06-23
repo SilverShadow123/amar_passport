@@ -1,0 +1,46 @@
+eligibility_analysis_task:
+  description: >
+    Analyze the applicant's profile: Age: {age}, Profession: {profession}, Urgency: {urgency}.
+    Identify the permitted passport validity (5 or 10 years). 
+    Note: Applicants under 18 or over 65 are restricted to 5 years only.
+    Determine the required primary ID (NID for 18+, Birth Registration for under 18).
+    Flag any inconsistencies (e.g., if a 15-year-old requested a 10-year passport).
+  expected_output: >
+    A summary of the applicant's eligibility, including allowed validity and required ID type.
+  agent: police_guardian
+
+fee_calculation_task:
+  description: >
+    Calculate the total passport fee in BDT including 15% VAT.
+    Use the 2026 fee structure:
+    - 48 Pages, 5 Years: Regular: 4025, Express: 6325, Super Express: 8625
+    - 48 Pages, 10 Years: Regular: 5750, Express: 8050, Super Express: 10350
+    - 64 Pages, 5 Years: Regular: 6325, Express: 8625, Super Express: 12075
+    - 64 Pages, 10 Years: Regular: 8050, Express: 10350, Super Express: 13800
+    Base the calculation on the applicant's choice of page count ({pages}) and delivery speed ({urgency}).
+  expected_output: >
+    The exact total BDT amount (including 15% VAT) for the specified passport type and delivery speed.
+  agent: chancellor_of_the_exchequer
+
+document_checklist_task:
+  description: >
+    Generate a customized list of documents required for the applicant.
+    Consider:
+    - Age-specific: NID (18+) or Birth Reg + Parent's NID (Under 18)
+    - Profession-specific: GO/NOC for Govt employees, Student ID for students, Trade License for Business.
+    - Standard: Application Summary, Payment Slip.
+    Applicant details: Age: {age}, Profession: {profession}.
+  expected_output: >
+    A bulleted list of all mandatory and supporting documents needed.
+  agent: document_architect
+
+passport_readiness_report_task:
+  description: >
+    Synthesize the information from previous tasks into a final report.
+    The report MUST include:
+    1. A Markdown Table in English summarizing: Validity, Delivery Type, Page Count, Total Fee (BDT), and key Documents.
+    2. A section in Bangla providing the same summary for local convenience.
+    3. Any "Flags" or warnings if the request was inconsistent with policy.
+  expected_output: >
+    A comprehensive Passport Readiness Report in Markdown format containing both English and Bangla sections.
+  agent: passport_readiness_officer

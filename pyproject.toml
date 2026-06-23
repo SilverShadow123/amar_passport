@@ -1,0 +1,26 @@
+[project]
+name = "amar_passport"
+version = "0.1.0"
+description = "amar_passport using crewAI"
+authors = [{ name = "Your Name", email = "you@example.com" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai-tools>=1.14.7",
+    "crewai[tools]==1.14.7",
+    "sentence-transformers>=5.6.0",
+]
+
+[project.scripts]
+amar_passport = "amar_passport.main:run"
+run_crew = "amar_passport.main:run"
+train = "amar_passport.main:train"
+replay = "amar_passport.main:replay"
+test = "amar_passport.main:test"
+run_with_trigger = "amar_passport.main:run_with_trigger"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.crewai]
+type = "crew"
